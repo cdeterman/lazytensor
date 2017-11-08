@@ -51,7 +51,17 @@ Tensor <- R6Class("Tensor",
                     # },
 
                     pow = function(val){
-                      self$ops[[length(self$ops) + 1]] = "`^`"
+                      self$ops[[length(self$ops) + 1]] = c("`^`", as.character(val))
+                      invisible(self)
+                    },
+
+                    log = function(base){
+                      if(missing(base)){
+                        self$ops[[length(self$ops) + 1]] = c("log", paste0("base = exp(1)"))
+                      }else{
+                        self$ops[[length(self$ops) + 1]] = c("log", paste0("base = ", base))
+                      }
+
                       invisible(self)
                     },
 
@@ -181,8 +191,12 @@ Tensor <- R6Class("Tensor",
                           output = self$tensor
                           for(f_str in self$ops){
                             # print(paste0('evaluating: ', f_str))
-                            f = eval(parse(text = f_str))
-                            output = f(output)
+                            if(length(f_str) == 1){
+                              f = eval(parse(text = f_str))
+                              output = f(output)
+                            }else{
+                              output = eval(parse(text = paste(f_str[1], '(output, ', as.character(f_str[2:length(f_str)]), ')')))
+                            }
                           }
                           return(output)
                         }
