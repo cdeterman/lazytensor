@@ -31,7 +31,7 @@ Tensor <- R6Class("Tensor",
                         private$.initializer = TRUE
                       }else{
                         self$tensor = initializer
-                        self$shape = private$.get_shape(initializer)
+                        private$.shape = private$.get_shape(initializer)
                         private$.initializer = FALSE
                       }
                     },
@@ -110,13 +110,18 @@ Tensor <- R6Class("Tensor",
                       invisible(self)
                     },
 
-                    max = function(){
-                      self$ops[[length(self$ops) + 1]] = "max"
+                    max = function(na.rm = FALSE){
+                      self$ops[[length(self$ops) + 1]] = c("max", paste0("na.rm = ", na.rm))
                       invisible(self)
                     },
 
-                    min = function(){
-                      self$ops[[length(self$ops) + 1]] = "min"
+                    min = function(na.rm = FALSE){
+                      self$ops[[length(self$ops) + 1]] = c("min", paste0("na.rm = ", na.rm))
+                      invisible(self)
+                    },
+
+                    mean = function(trim = 0, na.rm = FALSE){
+                      self$ops[[length(self$ops) + 1]] = c("mean", paste0("trim = ", trim), paste0("na.rm = ", na.rm))
                       invisible(self)
                     },
 
@@ -189,12 +194,17 @@ Tensor <- R6Class("Tensor",
                             }
                           }
                           output = self$tensor
+
+                          ### NEED BETTER ERROR/WARNING MESSAGES HERE!!!
+
                           for(f_str in self$ops){
                             # print(paste0('evaluating: ', f_str))
                             if(length(f_str) == 1){
                               f = eval(parse(text = f_str))
                               output = f(output)
                             }else{
+                              # print(f_str)
+                              # print(output)
                               output = eval(parse(text = paste(f_str[1], '(output, ', as.character(f_str[2:length(f_str)]), ')')))
                             }
                           }
@@ -224,7 +234,8 @@ Tensor <- R6Class("Tensor",
                                    "matrix" = dim(value),
                                    stop("unrecognized class"))
                       return(out)
-                    }
+                    },
+                    .args = NULL
                   )
 )
 
@@ -263,11 +274,47 @@ Placeholder <- R6Class("Placeholder",
                        )
 )
 
-# #' @export
-# Variable <- R6Class(
-#   "Variable",
-#   inherit = Tensor,
-#   public = list(
-#     initialize = function()
-#   )
-#)
+#' @export
+variable <- R6Class(
+  "variable",
+  inherit = Tensor,
+  public = list(
+    initialize = function(value, name = NA){
+
+      if(is.vector(value, mode = "numeric")){
+        shape = length(value)
+      }else{
+        shape = dim(value)
+      }
+
+      super$initialize(value, shape)
+
+      # make shape immutable
+      lockBinding('.shape', private)
+    }
+  )
+)
+
+
+#' @export
+constant <- R6Class(
+  "constant",
+  inherit = Tensor,
+
+  public = list(
+    initialize = function(value, name = NA){
+
+      if(is.vector(value, mode = "numeric")){
+        shape = length(value)
+      }else{
+        shape = dim(value)
+      }
+
+      super$initialize(value, shape)
+
+      # make tensor and shape immutable
+      lockBinding("tensor", self)
+      lockBinding(".shape", private)
+    }
+  )
+)
