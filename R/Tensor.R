@@ -125,6 +125,21 @@ Tensor <- R6Class("Tensor",
                       invisible(self)
                     },
 
+                    round = function(digits = 0){
+                      self$ops[[length(self$ops) + 1]] = c("round", paste0("digits = ", digits))
+                      invisible(self)
+                    },
+
+                    floor = function(){
+                      self$ops[[length(self$ops) + 1]] = "floor"
+                      invisible(self)
+                    },
+
+                    ceiling = function(){
+                      self$ops[[length(self$ops) + 1]] = "ceiling"
+                      invisible(self)
+                    },
+
                     compute = function(feed_list = NA){
                       if(private$.initializer){
 
@@ -286,6 +301,8 @@ variable <- R6Class(
       }else{
         shape = dim(value)
       }
+
+      if(!is.na(name)) self$name = name
 
       super$initialize(value, shape)
 

@@ -1,18 +1,24 @@
 
 # setOldClass(c("Tensor", "R6"))
 
+
+
+
 # @export
-# setMethod("%*%", signature(x = "Tensor", y = "Tensor"),
+# setMethod("%*%", c(x = "Tensor", y = "Tensor"),
 #           function(x, y){
-#             if(length(x$ops) > 0){
-#               a = x$compute()
-#             }
-#             if(length(y$ops) > 0){
-#               b = y$compute()
-#             }
+#             print('the matmult operation')
+#             # if(length(x$ops) > 0){
+#             #   a = x$compute()
+#             # }
+#             # if(length(y$ops) > 0){
+#             #   b = y$compute()
+#             # }
 #
-#             return(a %*% b)
-#           })
+#             return(matmult(x, y))
+#           },
+#           valueClass = "Tensor"
+# )
 
 #' @export
 matmult <- function(x, y){
@@ -20,9 +26,8 @@ matmult <- function(x, y){
 }
 
 
-# @export
-dot <- R6Class(
-  "dot",
+Op <- R6Class(
+  "Op",
   inherit = Tensor,
   public = list(
 
@@ -37,8 +42,15 @@ dot <- R6Class(
         private$.has_history = TRUE
       }
       private$.input_tensors = list(x, y)
-    },
+    }
+  )
+)
 
+# @export
+dot <- R6Class(
+  "dot",
+  inherit = Op,
+  public = list(
     compute = function(feed_list = NA){
       output = self$x$compute(feed_list) %*% self$y$compute(feed_list)
       return(output)
@@ -47,25 +59,11 @@ dot <- R6Class(
 )
 
 
-#' @export
+# @export
 add <- R6Class(
   'add',
-  inherit = Tensor,
+  inherit = Op,
   public = list(
-
-    x = NULL,
-    y = NULL,
-
-    initialize = function(x,y){
-      self$x = x
-      self$y = y
-      self$shape = dim(x)
-      if(length(x$ops) > 0 | length(y$ops) > 0){
-        private$.has_history = TRUE
-      }
-      private$.input_tensors = list(x, y)
-    },
-
     compute = function(feed_list = NA){
       output = self$x$compute(feed_list) + self$y$compute(feed_list)
       return(output)
@@ -74,27 +72,25 @@ add <- R6Class(
 )
 
 
-#' @export
+# @export
 subtract <- R6Class(
   'subtract',
-  inherit = Tensor,
+  inherit = Op,
   public = list(
-
-    x = NULL,
-    y = NULL,
-
-    initialize = function(x,y){
-      self$x = x
-      self$y = y
-      self$shape = dim(x)
-      if(length(x$ops) > 0 | length(y$ops) > 0){
-        private$.has_history = TRUE
-      }
-      private$.input_tensors = list(x, y)
-    },
-
     compute = function(feed_list = NA){
       output = self$x$compute(feed_list) - self$y$compute(feed_list)
+      return(output)
+    }
+  )
+)
+
+# @export
+elem_mult <- R6Class(
+  'elem_mult',
+  inherit = Op,
+  public = list(
+    compute = function(feed_list = NA){
+      output = self$x$compute(feed_list) * self$y$compute(feed_list)
       return(output)
     }
   )
@@ -148,3 +144,17 @@ mean_tensor <- R6Class(
     .mean_args = NULL
   )
 )
+
+# Comparison Operators
+equality <- R6Class(
+  "equality",
+  inherit = Op,
+  public = list(
+    compute = function(feed_list){
+      output = self$x$compute(feed_list) == self$y$compute(feed_list)
+      return(output)
+    }
+  )
+)
+
+
