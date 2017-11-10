@@ -21,5 +21,10 @@
   registerS3method("+", "Tensor", add$new)
   registerS3method("-", "Tensor", subtract$new)
   registerS3method("*", "Tensor", elem_mult$new)
-  registerS3method("==", "Tensor", equality$new)
+  registerS3method("==", "Tensor", eq$new)
+  registerS3method("!=", "Tensor", neq$new)
+  registerS3method(">=", "Tensor", gte$new)
+  registerS3method(">", "Tensor", gt$new)
+  registerS3method("<=", "Tensor", lte$new)
+  registerS3method("<", "Tensor", lt$new)
 }

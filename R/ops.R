@@ -146,8 +146,8 @@ mean_tensor <- R6Class(
 )
 
 # Comparison Operators
-equality <- R6Class(
-  "equality",
+eq <- R6Class(
+  "eq",
   inherit = Op,
   public = list(
     compute = function(feed_list){
@@ -157,4 +157,57 @@ equality <- R6Class(
   )
 )
 
+neq <- R6Class(
+  "neq",
+  inherit = Op,
+  public = list(
+    compute = function(feed_list){
+      output = self$x$compute(feed_list) != self$y$compute(feed_list)
+      return(output)
+    }
+  )
+)
 
+gte <- R6Class(
+  "gte",
+  inherit = Op,
+  public = list(
+    compute = function(feed_list){
+      output = self$x$compute(feed_list) >= self$y$compute(feed_list)
+      return(output)
+    }
+  )
+)
+
+gt <- R6Class(
+  "gt",
+  inherit = Op,
+  public = list(
+    compute = function(feed_list){
+      output = self$x$compute(feed_list) > self$y$compute(feed_list)
+      return(output)
+    }
+  )
+)
+
+lte <- R6Class(
+  "lte",
+  inherit = Op,
+  public = list(
+    compute = function(feed_list){
+      output = self$x$compute(feed_list) <= self$y$compute(feed_list)
+      return(output)
+    }
+  )
+)
+
+lt <- R6Class(
+  "lt",
+  inherit = Op,
+  public = list(
+    compute = function(feed_list){
+      output = self$x$compute(feed_list) < self$y$compute(feed_list)
+      return(output)
+    }
+  )
+)
