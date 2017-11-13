@@ -2,5 +2,6 @@
 ^\.Rproj\.user$
 .git
 .gitignore
+appveyor.yml
 .travis.yml
 README.md
