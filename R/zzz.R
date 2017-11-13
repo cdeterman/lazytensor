@@ -18,13 +18,14 @@
 
 .onLoad <- function(...){
   registerS3method("%*%", "Tensor", matmult)
-  registerS3method("+", "Tensor", add$new)
-  registerS3method("-", "Tensor", subtract$new)
-  registerS3method("*", "Tensor", elem_mult$new)
-  registerS3method("==", "Tensor", eq$new)
-  registerS3method("!=", "Tensor", neq$new)
-  registerS3method(">=", "Tensor", gte$new)
-  registerS3method(">", "Tensor", gt$new)
-  registerS3method("<=", "Tensor", lte$new)
-  registerS3method("<", "Tensor", lt$new)
+  registerS3method("+", "Tensor", add)
+  registerS3method("-", "Tensor", subtract)
+  registerS3method("*", "Tensor", elem_mult)
+  registerS3method("/", "Tensor", elem_div)
+  registerS3method("==", "Tensor", eq)
+  registerS3method("!=", "Tensor", neq)
+  registerS3method(">=", "Tensor", gte)
+  registerS3method(">", "Tensor", gt)
+  registerS3method("<=", "Tensor", lte)
+  registerS3method("<", "Tensor", lt)
 }

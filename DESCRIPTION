@@ -14,3 +14,4 @@ Imports:
 URL: http://github.com/cdeterman/lazytensor
 BugReports: http://github.com/cdeterman/lazytensor/issues/new
 RoxygenNote: 6.0.1
+Suggests: testthat

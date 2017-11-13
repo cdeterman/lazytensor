@@ -1,4 +1,39 @@
 
+Operation <- R6Class(
+  "Operation",
+  public = list(
+
+    op = NULL,
+    args = NULL,
+    input_indices = NULL,
+    has_history = FALSE,
+
+    initialize = function(op, args = NULL, input_indices = NA){
+      self$op = op
+      self$args = args
+
+      if(!is.na(input_indices)) self$has_history = TRUE
+      self$input_indices = input_indices
+    },
+
+    get_op = function(){
+      return(self$op)
+    },
+
+    get_args = function(){
+      if(!is.null(self$args)){
+        return(paste(self$args, sep = ","))
+      }
+      return(NULL)
+    },
+
+    get_input_indices = function(){
+      return(self$input_indices)
+    }
+  )
+)
+
+
 #' @import R6
 #' @export
 Tensor <- R6Class("Tensor",
@@ -25,15 +60,25 @@ Tensor <- R6Class("Tensor",
                     ops = list(),
 
                     initialize = function(initializer, shape){
-                      if(is.character(initializer)){
-                        self$tensor = get_initializer(initializer)
-                        self$shape = shape
-                        private$.initializer = TRUE
-                      }else{
-                        self$tensor = initializer
-                        private$.shape = private$.get_shape(initializer)
-                        private$.initializer = FALSE
-                      }
+                      switch(class(initializer),
+                             "Tensor" = {
+                               self$tensor = initializer$tensor
+                               self$shape = self$tensor$shape
+                               private$.initializer = FALSE
+                             },
+                             "character" = {
+                               self$tensor = get_initializer(initializer)
+                               self$shape = shape
+                               private$.initializer = TRUE
+                             },
+                             {
+                               self$tensor = initializer
+                               if(missing(shape)){
+                                 private$.shape = private$.get_shape(initializer)
+                               }
+                               private$.initializer = FALSE
+                             }
+                      )
                     },
 
                     # add = function(x){
@@ -50,6 +95,96 @@ Tensor <- R6Class("Tensor",
                     #   invisible(self)
                     # },
 
+                    .dot = function(x){
+                      private$.has_history = TRUE
+                      x_tensor = if(!is(x, "Tensor")) Tensor$new(x) else x
+                      private$.input_tensors = c(private$.input_tensors, x_tensor)
+                      self$ops[[length(self$ops) + 1]] = Operation$new("`%*%`", input_indices = length(private$.input_tensors))
+                      invisible(self)
+                    },
+
+                    .add = function(x){
+                      private$.has_history = TRUE
+                      x_tensor = if(!is(x, "Tensor")) Tensor$new(x) else x
+                      private$.input_tensors = c(private$.input_tensors, x_tensor)
+                      self$ops[[length(self$ops) + 1]] = Operation$new("`+`", input_indices = length(private$.input_tensors))
+                      invisible(self)
+                    },
+
+                    .sub = function(x){
+                      private$.has_history = TRUE
+                      x_tensor = if(!is(x, "Tensor")) Tensor$new(x) else x
+                      private$.input_tensors = c(private$.input_tensors, x_tensor)
+                      self$ops[[length(self$ops) + 1]] = Operation$new("`-`", input_indices = length(private$.input_tensors))
+                      invisible(self)
+                    },
+
+                    .mult = function(x){
+                      private$.has_history = TRUE
+                      x_tensor = if(!is(x, "Tensor")) Tensor$new(x) else x
+                      private$.input_tensors = c(private$.input_tensors, x_tensor)
+                      self$ops[[length(self$ops) + 1]] = Operation$new("`*`", input_indices = length(private$.input_tensors))
+                      invisible(self)
+                    },
+
+                    .div = function(x){
+                      private$.has_history = TRUE
+                      x_tensor = if(!is(x, "Tensor")) Tensor$new(x) else x
+                      private$.input_tensors = c(private$.input_tensors, x_tensor)
+                      self$ops[[length(self$ops) + 1]] = Operation$new("`/`", input_indices = length(private$.input_tensors))
+                      invisible(self)
+                    },
+
+                    # logical operators
+
+                    .eq = function(x){
+                      private$.has_history = TRUE
+                      x_tensor = if(!is(x, "Tensor")) Tensor$new(x) else x
+                      private$.input_tensors = c(private$.input_tensors, x_tensor)
+                      self$ops[[length(self$ops) + 1]] = Operation$new("`==`", input_indices = length(private$.input_tensors))
+                      invisible(self)
+                    },
+
+                    .neq = function(x){
+                      private$.has_history = TRUE
+                      x_tensor = if(!is(x, "Tensor")) Tensor$new(x) else x
+                      private$.input_tensors = c(private$.input_tensors, x_tensor)
+                      self$ops[[length(self$ops) + 1]] = Operation$new("`!=`", input_indices = length(private$.input_tensors))
+                      invisible(self)
+                    },
+
+                    .gte = function(x){
+                      private$.has_history = TRUE
+                      x_tensor = if(!is(x, "Tensor")) Tensor$new(x) else x
+                      private$.input_tensors = c(private$.input_tensors, x_tensor)
+                      self$ops[[length(self$ops) + 1]] = Operation$new("`>=`", input_indices = length(private$.input_tensors))
+                      invisible(self)
+                    },
+
+                    .gt = function(x){
+                      private$.has_history = TRUE
+                      x_tensor = if(!is(x, "Tensor")) Tensor$new(x) else x
+                      private$.input_tensors = c(private$.input_tensors, x_tensor)
+                      self$ops[[length(self$ops) + 1]] = Operation$new("`>`", input_indices = length(private$.input_tensors))
+                      invisible(self)
+                    },
+
+                    .lte = function(x){
+                      private$.has_history = TRUE
+                      x_tensor = if(!is(x, "Tensor")) Tensor$new(x) else x
+                      private$.input_tensors = c(private$.input_tensors, x_tensor)
+                      self$ops[[length(self$ops) + 1]] = Operation$new("`<=`", input_indices = length(private$.input_tensors))
+                      invisible(self)
+                    },
+
+                    .lt = function(x){
+                      private$.has_history = TRUE
+                      x_tensor = if(!is(x, "Tensor")) Tensor$new(x) else x
+                      private$.input_tensors = c(private$.input_tensors, x_tensor)
+                      self$ops[[length(self$ops) + 1]] = Operation$new("`<`", input_indices = length(private$.input_tensors))
+                      invisible(self)
+                    },
+
                     pow = function(val){
                       self$ops[[length(self$ops) + 1]] = c("`^`", as.character(val))
                       invisible(self)
@@ -62,6 +197,31 @@ Tensor <- R6Class("Tensor",
                         self$ops[[length(self$ops) + 1]] = c("log", paste0("base = ", base))
                       }
 
+                      invisible(self)
+                    },
+
+                    log10 = function(){
+                      self$ops[[length(self$ops) + 1]] = "log10"
+                      invisible(self)
+                    },
+
+                    log1p = function(){
+                      self$ops[[length(self$ops) + 1]] = "log1p"
+                      invisible(self)
+                    },
+
+                    log2 = function(){
+                      self$ops[[length(self$ops) + 1]] = "log2"
+                      invisible(self)
+                    },
+
+                    exp = function(){
+                      self$ops[[length(self$ops) + 1]] = "exp"
+                      invisible(self)
+                    },
+
+                    expm1 = function(){
+                      self$ops[[length(self$ops) + 1]] = "expm1"
                       invisible(self)
                     },
 
@@ -140,6 +300,31 @@ Tensor <- R6Class("Tensor",
                       invisible(self)
                     },
 
+                    sqrt = function(){
+                      self$ops[[length(self$ops) + 1]] = "sqrt"
+                      invisible(self)
+                    },
+
+                    sum = function(){
+                      self$ops[[length(self$ops) + 1]] = "sum"
+                      invisible(self)
+                    },
+
+                    cumsum = function(){
+                      self$ops[[length(self$ops) + 1]] = "cumsum"
+                      invisible(self)
+                    },
+
+                    prod = function(){
+                      self$ops[[length(self$ops) + 1]] = "prod"
+                      invisible(self)
+                    },
+
+                    cumprod = function(){
+                      self$ops[[length(self$ops) + 1]] = "cumprod"
+                      invisible(self)
+                    },
+
                     compute = function(feed_list = NA){
                       if(private$.initializer){
 
@@ -202,30 +387,74 @@ Tensor <- R6Class("Tensor",
                           return(self$tensor)
                         }else{
                           # operations to be completed
-                          if(length(private$.input_tensors) > 0){
-                            # input tensors require evaluation
-                            for(i in seq_along(private$.input_tensors)){
-                              private$.input_tensors[i]$compute(feed_list)
-                            }
-                          }
+                          # if(length(private$.input_tensors) > 0){
+                          #   # input tensors require evaluation
+                          #   for(i in seq_along(private$.input_tensors)){
+                          #     private$.input_tensors[i]$compute(feed_list)
+                          #   }
+                          # }
                           output = self$tensor
 
                           ### NEED BETTER ERROR/WARNING MESSAGES HERE!!!
 
                           for(f_str in self$ops){
-                            # print(paste0('evaluating: ', f_str))
-                            if(length(f_str) == 1){
-                              f = eval(parse(text = f_str))
-                              output = f(output)
+
+                            if(is(f_str, "Operation")){
+
+                              idx = f_str$get_input_indices()
+
+                              if(is.na(idx)){
+                                args = f_str$get_args()
+                                if(!is.null(args)){
+                                  f = parse(text = paste(f_str$get_op(), '(output,', args, ')'))
+                                }else{
+                                  f = parse(text = paste(f_str$get_op(), '(output)'))
+                                }
+
+                                output = eval(f)
+                              }else{
+
+                                args = f_str$get_args()
+                                inputs = paste(sapply(idx, function(x) paste0('private$.input_tensors[[', x, ']]$compute(feed_list)')), collapse = ", ")
+
+                                if(!is.null(args)){
+                                  f = parse(text = paste(f_str$get_op(), '(output,', inputs, ", ", args, ')'))
+                                }else{
+                                  f = parse(text = paste(f_str$get_op(), '(output,', inputs, ')'))
+                                }
+                                # print(output)
+                                # print(private$.input_tensors[[idx]]$compute(feed_list))
+                                # print(f)
+                                output = eval(f)
+                              }
+
                             }else{
-                              # print(f_str)
-                              # print(output)
-                              output = eval(parse(text = paste(f_str[1], '(output, ', as.character(f_str[2:length(f_str)]), ')')))
+                              # print(paste0('evaluating: ', f_str))
+                              if(length(f_str) == 1){
+                                f = eval(parse(text = f_str))
+                                output = f(output)
+                              }else{
+                                # print(f_str)
+                                # print(output)
+                                output = eval(parse(text = paste(f_str[1], '(output, ', as.character(f_str[2:length(f_str)]), ')')))
+                              }
                             }
                           }
                           return(output)
                         }
                       }
+                    },
+
+                    drop = function(idx = NA, name = NA){
+                      # remove an operation by index, name, or 'pop'
+                      if(!is.na(idx)){
+                        stop("index dropping not yet supported")
+                      }
+                      if(!is.na(name)){
+                        stop("name dropping not yet supported")
+                      }
+                      self$ops[[length(self$ops)]] = NULL
+                      return(invisible(self))
                     },
 
                     has_history = function(){

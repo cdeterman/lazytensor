@@ -22,7 +22,9 @@
 
 #' @export
 matmult <- function(x, y){
-  return(dot$new(x, y))
+  x$.dot(y)
+  return(invisible(x))
+  # return(dot$new(x, y))
 }
 
 
@@ -35,13 +37,23 @@ Op <- R6Class(
     y = NULL,
 
     initialize = function(x, y){
-      self$x = x
-      self$y = y
-      self$shape = c(nrow(x), ncol(y))
-      if(length(x$ops) > 0 | length(y$ops) > 0){
+
+      e1 = if(missing(x)) 0 else x
+      e2 = if(missing(y)) 0 else y
+
+      if(missing(y)){
+        self$y = if(!is(e1, "Tensor")) Tensor$new(e1) else e1
+        self$x = if(!is(e2, "Tensor")) Tensor$new(e2) else e2
+      }else{
+        self$x = if(!is(e1, "Tensor")) Tensor$new(e1) else e1
+        self$y = if(!is(e2, "Tensor")) Tensor$new(e2) else e2
+      }
+
+      self$shape = c(nrow(self$x), ncol(self$y))
+      if(length(self$x$ops) > 0 | length(self$y$ops) > 0){
         private$.has_history = TRUE
       }
-      private$.input_tensors = list(x, y)
+      private$.input_tensors = list(self$x, self$y)
     }
   )
 )
@@ -59,42 +71,35 @@ dot <- R6Class(
 )
 
 
-# @export
-add <- R6Class(
-  'add',
-  inherit = Op,
-  public = list(
-    compute = function(feed_list = NA){
-      output = self$x$compute(feed_list) + self$y$compute(feed_list)
-      return(output)
-    }
-  )
-)
+add <- function(x, y){
+  x$.add(y)
+  return(invisible(x))
+}
 
 
-# @export
-subtract <- R6Class(
-  'subtract',
-  inherit = Op,
-  public = list(
-    compute = function(feed_list = NA){
-      output = self$x$compute(feed_list) - self$y$compute(feed_list)
-      return(output)
-    }
-  )
-)
+subtract <- function(x, y){
 
-# @export
-elem_mult <- R6Class(
-  'elem_mult',
-  inherit = Op,
-  public = list(
-    compute = function(feed_list = NA){
-      output = self$x$compute(feed_list) * self$y$compute(feed_list)
-      return(output)
-    }
-  )
-)
+  if(missing(y)){
+    x$.mult(-1)
+  }else{
+    x$.sub(y)
+  }
+
+  return(invisible(x))
+}
+
+
+elem_mult <- function(x, y){
+  x$.mult(y)
+  return(invisible(x))
+}
+
+elem_div <- function(x, y){
+  x$.div(y)
+  return(invisible(x))
+}
+
+
 
 #' @export
 mean.Tensor <- function(x, ...){
@@ -146,68 +151,32 @@ mean_tensor <- R6Class(
 )
 
 # Comparison Operators
-eq <- R6Class(
-  "eq",
-  inherit = Op,
-  public = list(
-    compute = function(feed_list){
-      output = self$x$compute(feed_list) == self$y$compute(feed_list)
-      return(output)
-    }
-  )
-)
+eq <- function(x, y){
+  x$.eq(y)
+  return(invisible(x))
+}
 
-neq <- R6Class(
-  "neq",
-  inherit = Op,
-  public = list(
-    compute = function(feed_list){
-      output = self$x$compute(feed_list) != self$y$compute(feed_list)
-      return(output)
-    }
-  )
-)
+neq <- function(x, y){
+  x$.neq(y)
+  return(invisible(x))
+}
 
-gte <- R6Class(
-  "gte",
-  inherit = Op,
-  public = list(
-    compute = function(feed_list){
-      output = self$x$compute(feed_list) >= self$y$compute(feed_list)
-      return(output)
-    }
-  )
-)
+gte <- function(x, y){
+  x$.gte(y)
+  return(invisible(x))
+}
 
-gt <- R6Class(
-  "gt",
-  inherit = Op,
-  public = list(
-    compute = function(feed_list){
-      output = self$x$compute(feed_list) > self$y$compute(feed_list)
-      return(output)
-    }
-  )
-)
+gt <- function(x, y){
+  x$.gt(y)
+  return(invisible(x))
+}
 
-lte <- R6Class(
-  "lte",
-  inherit = Op,
-  public = list(
-    compute = function(feed_list){
-      output = self$x$compute(feed_list) <= self$y$compute(feed_list)
-      return(output)
-    }
-  )
-)
+lte <- function(x, y){
+  x$.lte(y)
+  return(invisible(x))
+}
 
-lt <- R6Class(
-  "lt",
-  inherit = Op,
-  public = list(
-    compute = function(feed_list){
-      output = self$x$compute(feed_list) < self$y$compute(feed_list)
-      return(output)
-    }
-  )
-)
+lt <- function(x, y){
+  x$.lt(y)
+  return(invisible(x))
+}
