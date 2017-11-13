@@ -186,142 +186,153 @@ Tensor <- R6Class("Tensor",
                     },
 
                     pow = function(val){
-                      self$ops[[length(self$ops) + 1]] = c("`^`", as.character(val))
+                      self$ops[[length(self$ops) + 1]] = Operation$new("`^`", args = as.character(val))
                       invisible(self)
                     },
 
                     log = function(base){
                       if(missing(base)){
-                        self$ops[[length(self$ops) + 1]] = c("log", paste0("base = exp(1)"))
+                        self$ops[[length(self$ops) + 1]] = Operation$new("log", args = paste0("base = exp(1)"))
                       }else{
-                        self$ops[[length(self$ops) + 1]] = c("log", paste0("base = ", base))
+                        self$ops[[length(self$ops) + 1]] = Operation$new("log", args = paste0("base = ", base))
                       }
 
                       invisible(self)
                     },
 
                     log10 = function(){
-                      self$ops[[length(self$ops) + 1]] = "log10"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("log10")
                       invisible(self)
                     },
 
                     log1p = function(){
-                      self$ops[[length(self$ops) + 1]] = "log1p"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("log1p")
                       invisible(self)
                     },
 
                     log2 = function(){
-                      self$ops[[length(self$ops) + 1]] = "log2"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("log2")
                       invisible(self)
                     },
 
                     exp = function(){
-                      self$ops[[length(self$ops) + 1]] = "exp"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("exp")
                       invisible(self)
                     },
 
                     expm1 = function(){
-                      self$ops[[length(self$ops) + 1]] = "expm1"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("expm1")
                       invisible(self)
                     },
 
                     sin = function(){
-                      self$ops[[length(self$ops) + 1]] = "sin"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("sin")
                       invisible(self)
                     },
 
                     asin = function(){
-                      self$ops[[length(self$ops) + 1]] = "asin"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("asin")
                       invisible(self)
                     },
 
                     sinh = function(){
-                      self$ops[[length(self$ops) + 1]] = "sinh"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("sinh")
                       invisible(self)
                     },
 
                     cos = function(){
-                      self$ops[[length(self$ops) + 1]] = "cos"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("cos")
                       invisible(self)
                     },
 
                     acos = function(){
-                      self$ops[[length(self$ops) + 1]] = "acos"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("acos")
                       invisible(self)
                     },
 
                     cosh = function(){
-                      self$ops[[length(self$ops) + 1]] = "cosh"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("cosh")
                       invisible(self)
                     },
 
                     tan = function(){
-                      self$ops[[length(self$ops) + 1]] = "tan"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("tan")
                       invisible(self)
                     },
 
                     atan = function(){
-                      self$ops[[length(self$ops) + 1]] = "atan"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("atan")
                       invisible(self)
                     },
 
                     tanh = function(){
-                      self$ops[[length(self$ops) + 1]] = "tanh"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("tanh")
                       invisible(self)
                     },
 
                     max = function(na.rm = FALSE){
-                      self$ops[[length(self$ops) + 1]] = c("max", paste0("na.rm = ", na.rm))
+                      self$ops[[length(self$ops) + 1]] = Operation$new("max", args = paste0("na.rm = ", na.rm))
                       invisible(self)
                     },
 
                     min = function(na.rm = FALSE){
-                      self$ops[[length(self$ops) + 1]] = c("min", paste0("na.rm = ", na.rm))
+                      self$ops[[length(self$ops) + 1]] = Operation$new("min", args = paste0("na.rm = ", na.rm))
                       invisible(self)
                     },
 
                     mean = function(trim = 0, na.rm = FALSE){
-                      self$ops[[length(self$ops) + 1]] = c("mean", paste0("trim = ", trim), paste0("na.rm = ", na.rm))
+                      # self$ops[[length(self$ops) + 1]] = c("mean", paste0("trim = ", trim), paste0("na.rm = ", na.rm))
+                      self$ops[[length(self$ops) + 1]] = Operation$new("round", args = c(paste0("trim = ", trim), paste0("na.rm = ", na.rm)))
+                      invisible(self)
+                    },
+
+                    abs = function(){
+                      self$ops[[length(self$ops) + 1]] = Operation$new("abs")
                       invisible(self)
                     },
 
                     round = function(digits = 0){
-                      self$ops[[length(self$ops) + 1]] = c("round", paste0("digits = ", digits))
+                      self$ops[[length(self$ops) + 1]] = Operation$new("round", args = paste0("digits = ", digits))
                       invisible(self)
                     },
 
                     floor = function(){
-                      self$ops[[length(self$ops) + 1]] = "floor"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("floor")
                       invisible(self)
                     },
 
                     ceiling = function(){
-                      self$ops[[length(self$ops) + 1]] = "ceiling"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("ceiling")
                       invisible(self)
                     },
 
                     sqrt = function(){
-                      self$ops[[length(self$ops) + 1]] = "sqrt"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("sqrt")
+                      invisible(self)
+                    },
+
+                    sign = function(){
+                      self$ops[[length(self$ops) + 1]] = Operation$new("sign")
                       invisible(self)
                     },
 
                     sum = function(){
-                      self$ops[[length(self$ops) + 1]] = "sum"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("sum")
                       invisible(self)
                     },
 
                     cumsum = function(){
-                      self$ops[[length(self$ops) + 1]] = "cumsum"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("cumsum")
                       invisible(self)
                     },
 
                     prod = function(){
-                      self$ops[[length(self$ops) + 1]] = "prod"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("prod")
                       invisible(self)
                     },
 
                     cumprod = function(){
-                      self$ops[[length(self$ops) + 1]] = "cumprod"
+                      self$ops[[length(self$ops) + 1]] = Operation$new("cumprod")
                       invisible(self)
                     },
 
@@ -429,15 +440,13 @@ Tensor <- R6Class("Tensor",
                               }
 
                             }else{
-                              # print(paste0('evaluating: ', f_str))
-                              if(length(f_str) == 1){
-                                f = eval(parse(text = f_str))
-                                output = f(output)
-                              }else{
-                                # print(f_str)
-                                # print(output)
-                                output = eval(parse(text = paste(f_str[1], '(output, ', as.character(f_str[2:length(f_str)]), ')')))
-                              }
+                              stop("shouldn't be in this place anymore")
+                              # if(length(f_str) == 1){
+                              #   f = eval(parse(text = f_str))
+                              #   output = f(output)
+                              # }else{
+                              #   output = eval(parse(text = paste(f_str[1], '(output, ', as.character(f_str[2:length(f_str)]), ')')))
+                              # }
                             }
                           }
                           return(output)

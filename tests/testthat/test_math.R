@@ -75,4 +75,116 @@ test_that("Matrix Trignometry", {
                check.attributes=FALSE)
 })
 
+test_that("Maximum/Minimum", {
+  R_max <- max(A)
+  R_min <- min(A)
+
+  A_tensor <- Tensor$new(A)
+
+  tensor_max <- A_tensor$max()$compute()
+  A_tensor$drop()
+  tensor_min <- A_tensor$min()$compute()
+  A_tensor$drop()
+
+  expect_equal(tensor_max, R_max, tolerance=.Machine$double.eps^0.5,
+               info="max matrix element not equivalent")
+  expect_equal(tensor_min, R_min, tolerance=.Machine$double.eps^0.5,
+               info="min matrix element not equivalent")
+
+})
+
+test_that("Rounding", {
+
+  R_round <- round(A)
+  R_floor <- floor(A)
+  R_ceiling <- ceiling(A)
+
+  A_tensor <- Tensor$new(A)
+
+  tensor_round <- A_tensor$round()$compute()
+  A_tensor$drop()
+  tensor_floor <- A_tensor$floor()$compute()
+  A_tensor$drop()
+  tensor_ceiling <- A_tensor$ceiling()$compute()
+  A_tensor$drop()
+
+
+  expect_equal(tensor_round, R_round, tolerance=.Machine$double.eps^0.5,
+               info="round matrix element not equivalent")
+  expect_equal(tensor_floor, R_floor, tolerance=.Machine$double.eps^0.5,
+               info="floor matrix element not equivalent")
+  expect_equal(tensor_ceiling, R_ceiling, tolerance=.Machine$double.eps^0.5,
+               info="ceiling matrix element not equivalent")
+
+})
+
+test_that("Logs and Exponents", {
+  R_log <- suppressWarnings(log(A))
+  R_log10 <- suppressWarnings(log10(A))
+  R_log1p <- suppressWarnings(log1p(A))
+  R_exp <- exp(A)
+  R_expm1 <- expm1(A)
+
+  A_tensor <- Tensor$new(A)
+
+  tensor_log <- suppressWarnings(A_tensor$log()$compute())
+  A_tensor$drop()
+  tensor_log10 <- suppressWarnings(A_tensor$log10()$compute())
+  A_tensor$drop()
+  tensor_log1p <- suppressWarnings(A_tensor$log1p()$compute())
+  A_tensor$drop()
+  tensor_exp <- A_tensor$exp()$compute()
+  A_tensor$drop()
+  tensor_expm1 <- A_tensor$expm1()$compute()
+  A_tensor$drop()
+
+  expect_equal(tensor_log, R_log, tolerance=.Machine$double.eps^0.5,
+               info="log matrix element not equivalent")
+  expect_equal(tensor_log10, R_log10, tolerance=.Machine$double.eps^0.5,
+               info="log10 matrix element not equivalent")
+  expect_equal(tensor_log1p, R_log1p, tolerance=.Machine$double.eps^0.5,
+               info="log1p matrix element not equivalent")
+  expect_equal(tensor_exp, R_exp, tolerance=.Machine$double.eps^0.5,
+               info="exp matrix element not equivalent")
+  expect_equal(tensor_expm1, R_expm1, tolerance=.Machine$double.eps^0.5,
+               info="expm1 matrix element not equivalent")
+
+})
+
+test_that("Absolute Value", {
+
+  R_abs <- abs(A)
+
+  A_tensor <- Tensor$new(A)
+
+  tensor_abs <- A_tensor$abs()$compute()
+
+  expect_equal(tensor_abs, R_abs, tolerance=.Machine$double.eps^0.5,
+               info="abs matrix element not equivalent")
+})
+
+test_that("sqrt", {
+
+  R_sqrt <- suppressWarnings(sqrt(A))
+
+  A_tensor <- Tensor$new(A)
+
+  tensor_sqrt <- suppressWarnings(A_tensor$sqrt()$compute())
+
+  expect_equal(tensor_sqrt, R_sqrt, tolerance=.Machine$double.eps^0.5,
+               info="sqrt matrix element not equivalent")
+})
+
+test_that("Sign", {
+
+  R_abs <- sign(A)
+
+  A_tensor <- Tensor$new(A)
+
+  tensor_abs <- A_tensor$sign()$compute()
+
+  expect_equal(tensor_abs, R_abs, tolerance=.Machine$double.eps^0.5,
+               info="sign matrix element not equivalent")
+})
+
 options(warn=0)
