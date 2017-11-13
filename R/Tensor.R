@@ -282,7 +282,7 @@ Tensor <- R6Class("Tensor",
 
                     mean = function(trim = 0, na.rm = FALSE){
                       # self$ops[[length(self$ops) + 1]] = c("mean", paste0("trim = ", trim), paste0("na.rm = ", na.rm))
-                      self$ops[[length(self$ops) + 1]] = Operation$new("round", args = c(paste0("trim = ", trim), paste0("na.rm = ", na.rm)))
+                      self$ops[[length(self$ops) + 1]] = Operation$new("mean", args = c(paste0("trim = ", trim), paste0("na.rm = ", na.rm)))
                       invisible(self)
                     },
 
@@ -389,12 +389,12 @@ Tensor <- R6Class("Tensor",
                         }
 
                         if(length(self$ops) == 0){
-                          # no operations on this tensor
-                          if(length(private$.input_tensors) > 0){
-                            for(i in seq_along(private$.input_tensors)){
-                              private$.input_tensors[i]$compute(feed_list)
-                            }
-                          }
+                          ## no operations on this tensor
+                          # if(length(private$.input_tensors) > 0){
+                          #   for(i in seq_along(private$.input_tensors)){
+                          #     private$.input_tensors[i]$compute(feed_list)
+                          #   }
+                          # }
                           return(self$tensor)
                         }else{
                           # operations to be completed
