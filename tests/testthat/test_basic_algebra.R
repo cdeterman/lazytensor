@@ -22,7 +22,7 @@ test_that("Matrix Multiplication", {
   B_tensor = Tensor$new(B)
 
   C <- A %*% B
-  C_tensor <- A_tensor %*% B_tensor
+  C_tensor <- matmult(A_tensor, B_tensor)
 
   expect_equal(C_tensor$compute(), C, tolerance=.Machine$double.eps ^ 0.5,
                info="matrix elements not equivalent")
