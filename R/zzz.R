@@ -1,4 +1,4 @@
-#' @importFrom methods isClass setOldClass
+#' @importFrom methods is isClass removeClass setOldClass
 .onAttach <- function(libname, pkgname) {
   where <- as.environment("package:lazytensor")
   clss <- list(
