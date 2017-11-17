@@ -5,7 +5,7 @@ Version: 0.1.0
 Author: Charles Determan Jr.
 Maintainer: Charles Determan Jr. <cdetermanjr@gmail.com>
 Description: Provide a means of symbolically define tensor
-    operations that are evaluated lazily
+  operations that are evaluated lazily.
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
