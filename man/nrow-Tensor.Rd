@@ -6,9 +6,9 @@
 \alias{ncol.Tensor}
 \title{The Number of Rows/Columns of a Tensor matrix}
 \usage{
-nrow.Tensor(x)
+\method{nrow}{Tensor}(x)
 
-ncol.Tensor(x)
+\method{ncol}{Tensor}(x)
 }
 \arguments{
 \item{x}{A Tensor object}

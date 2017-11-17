@@ -123,56 +123,11 @@ elem_div <- function(x, y){
   }
 }
 
-
-
-#' @export
-mean.Tensor <- function(x, ...){
-  dots <- list(...)
-
-  trim <- 0
-  na.rm <- FALSE
-
-  if('trim' %in% names(dots)){
-    trim <- dots$trim
-  }
-
-  if('na.rm' %in% names(dots)){
-    na.rm = dots$na.rm
-  }
-
-  return(x$mean(trim=trim, na.rm=na.rm))
+elem_pow <- function(x, val){
+  x$pow(val)
+  return(invisible(x))
 }
 
-
-# mean_tensor <- R6Class(
-#   'mean_tensor',
-#   inherit = Tensor,
-#   public = list(
-#
-#     x = NULL,
-#
-#     initialize = function(x, trim = 0, na.rm = FALSE){
-#       self$x = x
-#       self$shape = dim(x)
-#       if(length(x$ops) > 0){
-#         private$.has_history = TRUE
-#       }
-#       private$.input_tensors = list(x)
-#       private$.mean_args = list(trim = trim, na.rm = na.rm)
-#     },
-#
-#     compute = function(feed_list = NA){
-#       output = do.call(mean, list(x = self$x$compute(feed_list),
-#                                   trim = private$.mean_args$trim,
-#                                   na.rm = private$.mean_args$na.rm))
-#       return(output)
-#     }
-#   ),
-#
-#   private = list(
-#     .mean_args = NULL
-#   )
-# )
 
 # Comparison Operators
 eq <- function(x, y){

@@ -24,6 +24,7 @@
   registerS3method("-", "Tensor", subtract)
   registerS3method("*", "Tensor", elem_mult)
   registerS3method("/", "Tensor", elem_div)
+  registerS3method("^", "Tensor", elem_pow)
   registerS3method("==", "Tensor", eq)
   registerS3method("!=", "Tensor", neq)
   registerS3method(">=", "Tensor", gte)

@@ -51,3 +51,41 @@ test_that("Matrix Subtraction", {
   expect_equal(C_tensor$compute(), C, tolerance=.Machine$double.eps ^ 0.5,
                info="matrix elements not equivalent")
 })
+
+
+test_that("Matrix Elementwise Mutliplication", {
+
+  A_tensor = Tensor$new(A)
+  B_tensor = Tensor$new(B)
+
+  C <- A * B
+  C_tensor <- A_tensor * B_tensor
+
+  expect_equal(C_tensor$compute(), C, tolerance=.Machine$double.eps ^ 0.5,
+               info="matrix elements not equivalent")
+})
+
+
+test_that("Matrix Division", {
+
+  A_tensor = Tensor$new(A)
+  B_tensor = Tensor$new(B)
+
+  C <- A / B
+  C_tensor <- A_tensor / B_tensor
+
+  expect_equal(C_tensor$compute(), C, tolerance=.Machine$double.eps ^ 0.5,
+               info="matrix elements not equivalent")
+})
+
+test_that("Matrix Elementwise Power", {
+
+  A_tensor = Tensor$new(A)
+  B_tensor = Tensor$new(B)
+
+  C <- A ^ B
+  C_tensor <- A_tensor ^ B_tensor
+
+  expect_equal(C_tensor$compute(), C, tolerance=.Machine$double.eps ^ 0.5,
+               info="matrix elements not equivalent")
+})

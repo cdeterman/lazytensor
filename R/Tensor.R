@@ -288,7 +288,7 @@ Tensor <- R6Class("Tensor",
                       invisible(self)
                     },
 
-                    .div = function(x, order = 1, name = NA){
+                    .div = function(x, order = NA, name = NA){
                       private$.has_history = TRUE
                       x_tensor = if(!is(x, "Tensor")) Tensor$new(x) else x
                       # private$.input_tensors = c(private$.input_tensors, x_tensor)
@@ -478,17 +478,23 @@ Tensor <- R6Class("Tensor",
 
                       name = private$.createName(name)
 
+                      x_tensor = if(!is(val, "Tensor")) Tensor$new(val) else val
+
+                      # if Tensor wasn't provided, there still is an internal Tensor now
+                      private$.has_history = TRUE
+
                       # Functions is a single input operation, so take last node
                       input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+
                       # Function doesn't change shape
                       output_shapes = input_shapes
 
                       Node$new(self,
-                               ops = list(Operation$new("`^`", args = as.character(val))),
+                               ops = list(Operation$new("`^`")),
                                name = name,
-                               input_nodes = if(length(self$graph) > 0) tail(self$graph, 1) else list(),
+                               input_nodes = if(length(self$graph) > 0) c(tail(self$graph, 1), x_tensor$nodes) else list(tail(x_tensor$nodes, 1)),
                                output_nodes = list(),
-                               input_tensors = list(),
+                               input_tensors = list(x_tensor),
                                input_shapes = input_shapes,
                                output_shapes = output_shapes)
 
