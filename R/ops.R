@@ -20,6 +20,13 @@
 #           valueClass = "Tensor"
 # )
 
+#' @title Tensor Matrix Multiplication
+#' @description A higher level interface that may
+#' be more comfortable that using the internal \code{.dot}
+#' method for dot products.
+#' @param x base R or Tensor object
+#' @param y base R or Tensor object
+#' @return The \code{x} Tensor with the updated internal graph (invisible)
 #' @export
 matmult <- function(x, y){
   x$.dot(y)
@@ -28,35 +35,35 @@ matmult <- function(x, y){
 }
 
 
-Op <- R6Class(
-  "Op",
-  inherit = Tensor,
-  public = list(
-
-    x = NULL,
-    y = NULL,
-
-    initialize = function(x, y){
-
-      e1 = if(missing(x)) 0 else x
-      e2 = if(missing(y)) 0 else y
-
-      if(missing(y)){
-        self$y = if(!is(e1, "Tensor")) Tensor$new(e1) else e1
-        self$x = if(!is(e2, "Tensor")) Tensor$new(e2) else e2
-      }else{
-        self$x = if(!is(e1, "Tensor")) Tensor$new(e1) else e1
-        self$y = if(!is(e2, "Tensor")) Tensor$new(e2) else e2
-      }
-
-      self$shape = c(nrow(self$x), ncol(self$y))
-      if(length(self$x$ops) > 0 | length(self$y$ops) > 0){
-        private$.has_history = TRUE
-      }
-      private$.input_tensors = list(self$x, self$y)
-    }
-  )
-)
+# Op <- R6Class(
+#   "Op",
+#   inherit = Tensor,
+#   public = list(
+#
+#     x = NULL,
+#     y = NULL,
+#
+#     initialize = function(x, y){
+#
+#       e1 = if(missing(x)) 0 else x
+#       e2 = if(missing(y)) 0 else y
+#
+#       if(missing(y)){
+#         self$y = if(!is(e1, "Tensor")) Tensor$new(e1) else e1
+#         self$x = if(!is(e2, "Tensor")) Tensor$new(e2) else e2
+#       }else{
+#         self$x = if(!is(e1, "Tensor")) Tensor$new(e1) else e1
+#         self$y = if(!is(e2, "Tensor")) Tensor$new(e2) else e2
+#       }
+#
+#       self$shape = c(nrow(self$x), ncol(self$y))
+#       if(length(self$x$ops) > 0 | length(self$y$ops) > 0){
+#         private$.has_history = TRUE
+#       }
+#       private$.input_tensors = list(self$x, self$y)
+#     }
+#   )
+# )
 
 # # @export
 # dot <- R6Class(
@@ -71,6 +78,7 @@ Op <- R6Class(
 # )
 
 
+#' @importFrom methods is
 add <- function(x, y){
   if(!is(x, "Tensor")){
     y$.add(x)
