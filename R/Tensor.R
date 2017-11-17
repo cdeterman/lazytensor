@@ -461,7 +461,7 @@ Tensor <- R6Class("Tensor",
                       output_shapes = input_shapes
 
                       Node$new(self,
-                               ops = list(Operation$new("`!=`")),
+                               ops = list(Operation$new("`<`")),
                                name = name,
                                input_nodes = if(length(self$graph) > 0) c(tail(self$graph, 1), x_tensor$nodes) else list(tail(x_tensor$nodes, 1)),
                                output_nodes = list(),
