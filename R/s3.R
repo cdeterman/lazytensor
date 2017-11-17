@@ -121,8 +121,16 @@ min.Tensor <- function(..., na.rm = FALSE){
 #'   return(invisible(x))
 #' }
 
+
+#' @param x A Tensor object
+#' @param trim the fraction (0 to 0.5) of observations to be trimmed from
+#' each end of x before the mean is computed. Values of trim outside that
+#' range are taken as the nearest endpoint.
+#' @param na.rm a logical value indicating whether NA values should be
+#' stripped before the computation proceeds.
+#' @param ... further arguments to or from other methods
 #' @export
-mean.Tensor <- function(x, ...){
+mean.Tensor <- function(x, trim = 0, na.rm = FALSE, ...){
   dots <- list(...)
 
   trim <- 0

@@ -8,7 +8,19 @@ mean.Tensor <- function(x, trim = 0, na.rm = FALSE){
   return(invisible(x))
 }}
 \usage{
-\method{mean}{Tensor}(x, ...)
+\method{mean}{Tensor}(x, trim = 0, na.rm = FALSE, ...)
+}
+\arguments{
+\item{x}{A Tensor object}
+
+\item{trim}{the fraction (0 to 0.5) of observations to be trimmed from
+each end of x before the mean is computed. Values of trim outside that
+range are taken as the nearest endpoint.}
+
+\item{na.rm}{a logical value indicating whether NA values should be
+stripped before the computation proceeds.}
+
+\item{...}{further arguments to or from other methods}
 }
 \description{
 #' @export
