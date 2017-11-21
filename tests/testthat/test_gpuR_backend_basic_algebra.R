@@ -16,6 +16,7 @@ options(gpuR.default.type = "float")
 test_that("Matrix Multiplication", {
 
   skip_on_travis()
+  skip_on_appveyor()
 
   A_tensor = Tensor$new(vclMatrix(A))
   B_tensor = Tensor$new(vclMatrix(B))
