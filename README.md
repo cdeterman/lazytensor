@@ -6,7 +6,7 @@
 | Linux x86_64    | [![Build Status](https://travis-ci.org/cdeterman/lazytensor.png?branch=master)](https://travis-ci.org/cdeterman/lazytensor)      | [![Build Status](https://travis-ci.org/cdeterman/lazytensor.png?branch=develop)](https://travis-ci.org/cdeterman/lazytensor) |
 | Windows x86     | [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/github/cdeterman/lazytensor?branch=master&svg=true)](https://ci.appveyor.com/project/cdeterman/lazytensor)     | [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/github/cdeterman/lazytensor?branch=develop&svg=true)](https://ci.appveyor.com/project/cdeterman/lazytensor) |
 
-Test coverage: [![Coverage Status](https://coveralls.io/repos/cdeterman/lazytensor/badge.svg)](https://coveralls.io/r/cdeterman/lazytensor?branch=master)
+Test coverage: [![Coverage Status](https://coveralls.io/repos/github/cdeterman/lazytensor/badge.svg?branch=master)](https://coveralls.io/github/cdeterman/lazytensor?branch=master)
 
 Community Use: [![Downloads](http://cranlogs.r-pkg.org/badges/lazytensor?color=brightgreen)](http://www.r-pkg.org/pkg/lazytensor)
 

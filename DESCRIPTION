@@ -10,8 +10,8 @@ License: GPL-2
 Encoding: UTF-8
 LazyData: true
 Imports:
-  methods, R6
+  methods, utils, R6
 URL: http://github.com/cdeterman/lazytensor
 BugReports: http://github.com/cdeterman/lazytensor/issues/new
 RoxygenNote: 6.0.1
-Suggests: testthat
+Suggests: testthat, gpuR

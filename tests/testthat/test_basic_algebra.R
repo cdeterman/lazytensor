@@ -52,6 +52,27 @@ test_that("Matrix Subtraction", {
                info="matrix elements not equivalent")
 })
 
+test_that("Unary Matrix Subtraction", {
+
+  A_tensor = Tensor$new(A)
+
+  C <- -A
+  C_tensor <- -A_tensor
+
+  expect_equal(C_tensor$compute(), C, tolerance=.Machine$double.eps ^ 0.5,
+               info="matrix elements not equivalent")
+})
+
+test_that("Scalar Matrix Subtraction", {
+
+  A_tensor = Tensor$new(A)
+
+  C <- 1-A
+  C_tensor <- 1-A_tensor
+
+  expect_equal(C_tensor$compute(), C, tolerance=.Machine$double.eps ^ 0.5,
+               info="matrix elements not equivalent")
+})
 
 test_that("Matrix Elementwise Mutliplication", {
 
@@ -73,6 +94,17 @@ test_that("Matrix Division", {
 
   C <- A / B
   C_tensor <- A_tensor / B_tensor
+
+  expect_equal(C_tensor$compute(), C, tolerance=.Machine$double.eps ^ 0.5,
+               info="matrix elements not equivalent")
+})
+
+test_that("Scalar Matrix Division", {
+
+  A_tensor = Tensor$new(A)
+
+  C <- 1/A
+  C_tensor <- 1/A_tensor
 
   expect_equal(C_tensor$compute(), C, tolerance=.Machine$double.eps ^ 0.5,
                info="matrix elements not equivalent")

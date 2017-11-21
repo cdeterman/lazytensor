@@ -94,11 +94,18 @@ subtract <- function(x, y){
 
   if(missing(y)){
     x$.mult(-1)
+    return(invisible(x))
   }else{
-    x$.sub(y)
+    if(!is(x, "Tensor")){
+      y$.sub(x, order = 1)
+      return(invisible(y))
+    }else{
+      x$.sub(y)
+      return(invisible(x))
+    }
   }
 
-  return(invisible(x))
+
 }
 
 
@@ -115,7 +122,7 @@ elem_mult <- function(x, y){
 
 elem_div <- function(x, y){
   if(!is(x, "Tensor")){
-    y$.div(x)
+    y$.div(x, order = 1)
     return(invisible(y))
   }else{
     x$.div(y)

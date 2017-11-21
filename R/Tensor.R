@@ -157,8 +157,24 @@ Tensor <- R6Class("Tensor",
 
                       self$graph = list()
 
+                      if(is(initializer, "R6")){
+                        cls = tail(class(initializer), 2)[1]
+                        if(missing(shape)){
+                          shape = initializer$shape
+                        }
+                      }else{
+                        cls = class(initializer)
+                      }
 
-                      switch(class(initializer),
+                      switch(cls,
+                             "Initializer" = {
+                               self$tensor = initializer
+                               if(missing(shape)){
+                                 stop("must provide shape with an initializer")
+                               }
+                               self$shape = shape
+                               private$.initializer = TRUE
+                             },
                              "Tensor" = {
                                self$tensor = initializer$tensor
                                self$shape = self$tensor$shape
@@ -172,12 +188,35 @@ Tensor <- R6Class("Tensor",
                                self$shape = shape
                                private$.initializer = TRUE
                              },
-                             {
+                             "matrix" = {
                                self$tensor = initializer
                                if(missing(shape)){
                                  private$.shape = private$.get_shape(initializer)
                                }
                                private$.initializer = FALSE
+                             },
+                             "numeric" = {
+                               self$tensor = initializer
+                               if(missing(shape)){
+                                 private$.shape = private$.get_shape(initializer)
+                               }
+                               private$.initializer = FALSE
+                             },
+                             {
+                               if(inherits(initializer, "gpuMatrix") | inherits(initializer, "vclMatrix")){
+
+                                 if(getOption("lazytensor.backend") != "gpuR"){
+                                   stop("Please setBackend('gpuR') to use gpuR objects")
+                                 }
+
+                                 self$tensor = initializer
+                                 if(missing(shape)){
+                                   private$.shape = private$.get_shape(initializer)
+                                 }
+                                 private$.initializer = FALSE
+                               }else{
+                                 stop(paste0("unimplemented class: ", class(initializer)))
+                               }
                              }
                       )
                     },
@@ -236,7 +275,7 @@ Tensor <- R6Class("Tensor",
                       invisible(self)
                     },
 
-                    .sub = function(x, name = NA){
+                    .sub = function(x, order = NA, name = NA){
                       private$.has_history = TRUE
                       x_tensor = if(!is(x, "Tensor")) Tensor$new(x) else x
                       # private$.input_tensors = c(private$.input_tensors, x_tensor)
@@ -251,7 +290,7 @@ Tensor <- R6Class("Tensor",
                       output_shapes = input_shapes
 
                       Node$new(self,
-                               ops = list(Operation$new("`-`")),
+                               ops = list(Operation$new("`-`", order = order)),
                                name = name,
                                input_nodes = if(length(self$graph) > 0) c(tail(self$graph, 1), x_tensor$nodes) else list(tail(x_tensor$nodes, 1)),
                                output_nodes = list(),
@@ -1165,28 +1204,20 @@ Tensor <- R6Class("Tensor",
                         # tensor is in initializer object
 
                         if(length(self$ops) == 0){
+
                           print("returning initializer")
-                          if(length(private$.input_tensors) > 0){
-                            stop("shouldn't be providing inputs to initializer")
-                            # for(i in seq_along(private$.input_tensors)){
-                            #   private$.input_tensors[i]$compute(feed_list)
-                            # }
-                          }
                           return(self$tensor$new(self$shape)$compute())
+
                         }else{
+
                           print('initializer with ops')
-                          if(length(private$.input_tensors) > 0){
-                            # for(i in seq_along(private$.input_tensors)){
-                            #   private$.input_tensors[i]$compute()
-                            # }
-                            stop("shouldn't be providing inputs to initializer")
-                          }
                           output = self$tensor$new(self$shape)$compute()
-                          for(f_str in self$ops){
-                            f = eval(parse(text = f_str))
-                            output = f(output)
-                          }
-                          return(output)
+
+                          # for(f_str in self$ops){
+                          #   f = eval(parse(text = f_str))
+                          #   output = f(output)
+                          # }
+                          # return(output)
                         }
 
                       }else{
@@ -1208,7 +1239,9 @@ Tensor <- R6Class("Tensor",
                             stop(paste0("input object for placeholder: ", self$name,
                                         "doesn't match shape: ", self$shape))
                           }
-                          self$tensor = input_tensor
+                          output = input_tensor
+                        }else{
+                          output = self$tensor
                         }
 
                         if(length(self$graph) == 0){
@@ -1221,13 +1254,8 @@ Tensor <- R6Class("Tensor",
                           return(self$tensor)
                         }else{
                           # operations to be completed
-                          # if(length(private$.input_tensors) > 0){
-                          #   # input tensors require evaluation
-                          #   for(i in seq_along(private$.input_tensors)){
-                          #     private$.input_tensors[i]$compute(feed_list)
-                          #   }
-                          # }
-                          output = self$tensor
+
+                          # output = self$tensor
 
                           ### NEED BETTER ERROR/WARNING MESSAGES HERE!!!
 
@@ -1249,12 +1277,25 @@ Tensor <- R6Class("Tensor",
 
                                   # get method arguments
                                   args = op$get_args()
-                                  if(!is.null(args)){
-                                    f = parse(text = paste(op$get_op(), '(output,', args, ')'))
+                                  func = op$get_op()
+
+                                  if(is.function(func)){
+
+                                    if(!is.null(args)){
+                                      stop('args not implemented yet')
+                                    }else{
+                                      output = func(output)
+                                    }
+
                                   }else{
-                                    f = parse(text = paste(op$get_op(), '(output)'))
+                                    if(!is.null(args)){
+                                      f = parse(text = paste(func, '(output,', args, ')'))
+                                    }else{
+                                      f = parse(text = paste(func, '(output)'))
+                                    }
+                                    output = eval(f)
                                   }
-                                  output = eval(f)
+
                                 }else{
 
                                   # get method arguments
@@ -1281,11 +1322,20 @@ Tensor <- R6Class("Tensor",
                                       f = parse(text = paste(op$get_op(), '(', inputs, ', output)'))
                                     }
                                   }
+
                                   output = eval(f)
                                 }
 
                               }else{
-                                stop("shouldn't be in this place anymore")
+
+                                if(is(op, "function")){
+
+
+                                }else{
+                                  stop("shouldn't be in this place anymore")
+                                }
+
+                                stop("shouldn't be in this legacy place anymore")
                                 # if(length(op) == 1){
                                 #   f = eval(parse(text = op))
                                 #   output = f(output)
@@ -1312,18 +1362,19 @@ Tensor <- R6Class("Tensor",
                       # need to get this before all the subsequent nodes added
                       input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
 
-                      node_start = length(self$graph) + 1
-                      f(self)
-                      node_end = length(self$graph)
-
-                      # consolidate operations to single node
-                      ops = unlist(lapply(self$graph[node_start:node_end], function(node) node$ops))
-
-                      # function may change shape
-                      output_shapes = list(tail(self$graph)[[1]]$output_shapes)
+                      # node_start = length(self$graph) + 1
+                      # f(self)
+                      # node_end = length(self$graph)
+                      #
+                      # # consolidate operations to single node
+                      # ops = unlist(lapply(self$graph[node_start:node_end], function(node) node$ops))
+                      #
+                      # # function may change shape
+                      # output_shapes = list(tail(self$graph)[[1]]$output_shapes)
+                      output_shapes = input_shapes
 
                       Node$new(self,
-                               ops = ops,
+                               ops = list(Operation$new(f)),
                                name = name,
                                input_nodes = if(length(self$graph) > 0) tail(self$graph, 1) else list(),
                                output_nodes = list(),
@@ -1332,7 +1383,7 @@ Tensor <- R6Class("Tensor",
                                output_shapes = output_shapes)
 
                       # remove redundant Nodes
-                      self$graph[node_start:node_end] = NULL
+                      # self$graph[node_start:node_end] = NULL
 
                       invisible(self)
 
@@ -1381,11 +1432,29 @@ Tensor <- R6Class("Tensor",
                     .has_history = NULL,
 
                     .get_shape = function(value){
-                      out = switch(class(value),
+
+                      if(is(value, "R6")){
+                        cls = tail(class(value), 2)[1]
+                        if(missing(shape)){
+                          shape = value$shape
+                        }
+                      }else{
+                        cls = class(value)
+                      }
+
+                      out = switch(cls,
+                                   "Tensor" = value$shape,
                                    "integer" = length(value),
                                    "numeric" = length(value),
                                    "matrix" = dim(value),
-                                   stop("unrecognized class"))
+                                   {
+                                     if(is(value, "gpuMatrix") | is(value, "vclMatrix")){
+                                       dim(value)
+                                     }else{
+                                       stop(paste0("unrecognized class: ", class(value)))
+                                     }
+                                   }
+                      )
                       return(out)
                     },
                     .args = NULL,

@@ -18,6 +18,9 @@
 # }
 
 .onLoad <- function(...){
+  # default options
+  options(lazytensor.backend = "base")
+
   # %*% S3 method doesn't work
   # registerS3method("%*%", "Tensor", matmult)
   registerS3method("+", "Tensor", add)
