@@ -1369,6 +1369,9 @@ Tensor <- R6Class("Tensor",
                       # # consolidate operations to single node
                       # ops = unlist(lapply(self$graph[node_start:node_end], function(node) node$ops))
                       #
+
+                      ### The output_shapes needs to somehow be dynamically determined
+
                       # # function may change shape
                       # output_shapes = list(tail(self$graph)[[1]]$output_shapes)
                       output_shapes = input_shapes
