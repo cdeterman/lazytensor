@@ -10,13 +10,14 @@ ORDER <- 4
 A <- matrix(rnorm(ORDER^2), nrow=ORDER, ncol=ORDER)
 B <- matrix(rnorm(ORDER^2), nrow=ORDER, ncol=ORDER)
 
-setBackend("gpuR")
-options(gpuR.default.type = "float")
 
 test_that("Matrix Multiplication", {
 
   skip_on_travis()
   skip_on_appveyor()
+
+  setBackend("gpuR")
+  options(gpuR.default.type = "float")
 
   A_tensor = Tensor$new(vclMatrix(A))
   B_tensor = Tensor$new(vclMatrix(B))
