@@ -28,6 +28,9 @@ test_script:
 on_failure:
   - travis-tool.sh dump_logs
 
+environment:
+  _R_CHECK_FORCE_SUGGESTS_: false
+
 #on_finish:
 #  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
