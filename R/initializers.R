@@ -1,5 +1,9 @@
 
-# Initializers
+#' @title Retrive Initializer Function
+#' @description Returns an initializer function to
+#' generate a Tensor object.
+#' @param initializer Character scalar defining initializer Tensor to return
+#' @export
 get_initializer <- function(initializer){
   switch(initializer,
          "zeros" = Zeros,
@@ -29,9 +33,8 @@ get_initializer <- function(initializer){
 #' @author Charles Determan Jr.
 #' @import R6
 Initializer <- R6Class("Initializer",
+                       inherit = Tensor,
                        public = list(
-
-                         shape = NULL,
 
                          initialize = function(shape){
                            self$shape = shape
@@ -45,19 +48,23 @@ Initializer <- R6Class("Initializer",
 Zeros <- R6Class("Zeros",
                  inherit = Initializer,
                  public = list(
-                   compute = function(){
-                     if(length(self$shape) == 1){
+                   initialize = function(shape){
 
-                       switch(options(lazytensor.backend),
-                              "base" = return(rep(0, self$shape)),
-                              "gpuR" = return(vclVector(0, length = self$shape))
+                     self$shape = shape
+                     private$.initializer = TRUE
+
+                     if(length(shape) == 1){
+
+                       self$tensor = switch(getOption("lazytensor.backend"),
+                              "base" = rep(0, shape),
+                              "gpuR" = vclVector(0, length = shape)
                        )
 
                      }else{
 
-                       switch(options(lazytensor.backend),
-                         "base" = return(matrix(0, nrow = self$shape[1], ncol = self$shape[2])),
-                         "gpuR" = return(vclMatrix(0, nrow = self$shape[1], ncol = self$shape[2]))
+                       self$tensor = switch(getOption("lazytensor.backend"),
+                         "base" = matrix(0, nrow = shape[1], ncol = shape[2]),
+                         "gpuR" = vclMatrix(0, nrow = shape[1], ncol = shape[2])
                        )
 
                      }
@@ -71,19 +78,22 @@ Zeros <- R6Class("Zeros",
 Ones <- R6Class("Ones",
                  inherit = Initializer,
                  public = list(
-                   compute = function(){
-                     if(length(self$shape) == 1){
+                   initialize = function(shape){
 
-                       switch(options(lazytensor.backend),
-                              "base" = return(rep(1, self$shape)),
-                              "gpuR" = return(vclVector(1, length = self$shape))
+                     self$shape = shape
+
+                     if(length(shape) == 1){
+
+                       self$tensor = switch(getOption("lazytensor.backend"),
+                              "base" = rep(1, shape),
+                              "gpuR" = vclVector(1, length = shape)
                        )
 
                      }else{
 
-                       switch(options(lazytensor.backend),
-                              "base" = return(matrix(1, nrow = self$shape[1], ncol = self$shape[2])),
-                              "gpuR" = return(vclMatrix(1, nrow = self$shape[1], ncol = self$shape[2]))
+                       self$tensor = switch(getOption("lazytensor.backend"),
+                              "base" = matrix(1, nrow = shape[1], ncol = shape[2]),
+                              "gpuR" = vclMatrix(1, nrow = shape[1], ncol = shape[2])
                        )
 
                      }
@@ -100,23 +110,21 @@ Constant <- R6Class("Constant",
                   constant = NULL,
 
                   initialize = function(shape, constant){
+
                     self$shape = shape
-                    self$constant = constant
-                  },
 
-                  compute = function(){
-                    if(length(self$shape) == 1){
+                    if(length(shape) == 1){
 
-                      switch(options(lazytensor.backend),
-                             "base" = return(rep(self$constant, self$shape)),
-                             "gpuR" = return(vclVector(self$constant, length = self$shape))
+                      self$tensor = switch(getOption("lazytensor.backend"),
+                             "base" = rep(self$constant, shape),
+                             "gpuR" = vclVector(self$constant, length = shape)
                       )
 
                     }else{
 
-                      switch(options(lazytensor.backend),
-                             "base" = return(matrix(self$constant, nrow = self$shape[1], ncol = self$shape[2])),
-                             "gpuR" = return(vclMatrix(self$constant, nrow = self$shape[1], ncol = self$shape[2]))
+                      self$tensor = switch(getOption("lazytensor.backend"),
+                             "base" = matrix(self$constant, nrow = shape[1], ncol = shape[2]),
+                             "gpuR" = vclMatrix(self$constant, nrow = shape[1], ncol = shape[2])
                       )
 
                     }
@@ -130,32 +138,30 @@ RandomNormal <- R6Class("RandomNormal",
                     inherit = Initializer,
                     public = list(
 
-                      mean = NULL,
+                      rmean = NULL,
                       sd = NULL,
+                      seed = NULL,
 
                       initialize = function(shape, mean = 0, sd = 1, seed = NA){
                         self$shape = shape
-                        self$mean = mean
+                        self$rmean = mean
                         self$sd = sd
                         self$seed = seed
-                      },
-
-                      compute = function(){
 
                         if(!is.na(self$seed)) set.seed(self$seed)
 
-                        if(length(self$shape) == 1){
+                        if(length(shape) == 1){
 
-                          switch(options(lazytensor.backend),
-                                 "base" = return(rnorm(self$shape, mean = self$mean, sd = self$sd)),
-                                 "gpuR" = return(vclVector(rnorm(self$shape, mean = self$mean, sd = self$sd)))
+                          self$tensor = switch(getOption("lazytensor.backend"),
+                                 "base" = rnorm(shape, mean = self$rmean, sd = self$sd),
+                                 "gpuR" = vclVector(rnorm(shape, mean = self$rmean, sd = self$sd))
                           )
 
                         }else{
 
-                          switch(options(lazytensor.backend),
-                                 "base" = return(matrix(rnorm(prod(self$shape), mean = self$mean, sd = self$sd), nrow = shape[1], ncol = shape[2])),
-                                 "gpuR" = return(vclMatrix(rnorm(prod(self$shape), mean = self$mean, sd = self$sd), nrow = self$shape[1], ncol = self$shape[2]))
+                          self$tensor = switch(getOption("lazytensor.backend"),
+                                 "base" = matrix(rnorm(prod(shape), mean = self$rmean, sd = self$sd), nrow = shape[1], ncol = shape[2]),
+                                 "gpuR" = vclMatrix(rnorm(prod(shape), mean = self$rmean, sd = self$sd), nrow = shape[1], ncol = shape[2])
                           )
                         }
                       }

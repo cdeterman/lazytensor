@@ -167,14 +167,14 @@ Tensor <- R6Class("Tensor",
                       }
 
                       switch(cls,
-                             "Initializer" = {
-                               self$tensor = initializer
-                               if(missing(shape)){
-                                 stop("must provide shape with an initializer")
-                               }
-                               self$shape = shape
-                               private$.initializer = TRUE
-                             },
+                             # "Initializer" = {
+                             #   self$tensor = initializer
+                             #   if(missing(shape)){
+                             #     stop("must provide shape with an initializer")
+                             #   }
+                             #   self$shape = shape
+                             #   private$.initializer = TRUE
+                             # },
                              "Tensor" = {
                                self$tensor = initializer$tensor
                                self$shape = self$tensor$shape
@@ -939,6 +939,58 @@ Tensor <- R6Class("Tensor",
                       invisible(self)
                     },
 
+                    pmax = function(..., na.rm = FALSE, name = NA){
+                      name = private$.createName(name)
+
+                      dots = list(...)
+                      args = paste0("na.rm = ", na.rm)
+
+                      # get inputs
+                      x_tensors = lapply(dots, function(x) if(!is(x, "Tensor")) Tensor$new(x) else x)
+
+                      # function is single input operation, so take last node
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      # function returns object of the same dimensions
+                      output_shapes = input_shapes
+
+                      Node$new(self,
+                               ops = list(Operation$new("pmax", args = args)),
+                               name = name,
+                               input_nodes = if(length(self$graph) > 0) tail(self$graph, 1) else list(),
+                               output_nodes = list(),
+                               input_tensors = list(x_tensors),
+                               input_shapes = input_shapes,
+                               output_shapes = output_shapes)
+
+                      invisible(self)
+                    },
+
+                    pmin = function(..., na.rm = FALSE, name = NA){
+                      name = private$.createName(name)
+
+                      dots = list(...)
+                      args = paste0("na.rm = ", na.rm)
+
+                      # get inputs
+                      x_tensors = lapply(dots, function(x) if(!is(x, "Tensor")) Tensor$new(x) else x)
+
+                      # function is single input operation, so take last node
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      # function returns object of the same dimensions
+                      output_shapes = input_shapes
+
+                      Node$new(self,
+                               ops = list(Operation$new("pmin", args = args)),
+                               name = name,
+                               input_nodes = if(length(self$graph) > 0) tail(self$graph, 1) else list(),
+                               output_nodes = list(),
+                               input_tensors = list(x_tensors),
+                               input_shapes = input_shapes,
+                               output_shapes = output_shapes)
+
+                      invisible(self)
+                    },
+
                     mean = function(trim = 0, na.rm = FALSE, name = NA){
                       # self$ops[[length(self$ops) + 1]] = c("mean", paste0("trim = ", trim), paste0("na.rm = ", na.rm))
                       # self$ops[[length(self$ops) + 1]] = Operation$new("mean", args = c(paste0("trim = ", trim), paste0("na.rm = ", na.rm)))
@@ -1279,6 +1331,9 @@ Tensor <- R6Class("Tensor",
                                   args = op$get_args()
                                   func = op$get_op()
 
+                                  # print('operation')
+                                  # print(func)
+
                                   if(is.function(func)){
 
                                     if(!is.null(args)){
@@ -1293,7 +1348,9 @@ Tensor <- R6Class("Tensor",
                                     }else{
                                       f = parse(text = paste(func, '(output)'))
                                     }
+
                                     output = eval(f)
+
                                   }
 
                                 }else{
@@ -1301,27 +1358,48 @@ Tensor <- R6Class("Tensor",
                                   # get method arguments
                                   args = op$get_args()
 
+                                  # need to make sure order of inputs is correct
                                   # get input tensors (this likely should be cached)
                                   if(is.list(node$input_tensors[[o]])){
-                                    inputs = paste(sapply(idx, function(x) paste0('node$input_tensors[[o]][[', x, ']]$compute(feed_list)')), collapse = ",")
+                                    inames = names(node$input_tensors[[o]])
+                                    if(!is.null(inames)){
+                                      inputs = paste(sapply(idx, function(x) paste0(inames[x], '=node$input_tensors[[o]][[', x, ']]$compute(feed_list)')), collapse = ",")
+                                    }else{
+                                      inputs = paste(sapply(idx, function(x) paste0('node$input_tensors[[o]][[', x, ']]$compute(feed_list)')), collapse = ",")
+                                    }
+
                                   }else{
                                     inputs = paste0('node$input_tensors[[o]]$compute(feed_list)')
                                   }
 
+                                  # get function for operation
+                                  func = op$get_op()
+
+                                  # set prefix as cannot pass function definition as string
+                                  prefix = ifelse(is.function(func), "func", func)
 
                                   if(!is.null(args)){
+                                    # print('args not null')
                                     if(is.na(op$order)){
-                                      f = parse(text = paste(op$get_op(), '(output,', inputs, ", ", args, ')'))
+                                      f = parse(text = paste(prefix, '(output,', inputs, ", ", args, ')'))
                                     }else{
-                                      f = parse(text = paste(op$get_op(), '(', inputs, ", output,", args, ')'))
+                                      f = parse(text = paste(prefix, '(', inputs, ", output,", args, ')'))
                                     }
                                   }else{
+
                                     if(is.na(op$order)){
-                                      f = parse(text = paste(op$get_op(), '(output,', inputs, ')'))
+                                      # print('operation')
+                                      # print(op$get_op())
+                                      # print("inputs")
+                                      # print(inputs)
+                                      f = parse(text = paste(prefix, '(output,', inputs, ')'))
                                     }else{
-                                      f = parse(text = paste(op$get_op(), '(', inputs, ', output)'))
+                                      f = parse(text = paste(prefix, '(', inputs, ', output)'))
                                     }
                                   }
+
+                                  # print('expression')
+                                  # print(f)
 
                                   output = eval(f)
                                 }
@@ -1351,12 +1429,16 @@ Tensor <- R6Class("Tensor",
                       }
                     },
 
-                    chain = function(f, name){
+                    chain = function(f, name, ...){
                       # ops_start = length(self$ops) + 1
                       # f(self)
                       # ops_end = length(self$ops)
                       # self$ops_names[[name]] = c(ops_start:ops_end)
 
+                      theDots = list(...)
+                      if(length(theDots) > 0){
+                        theDots = list(lapply(theDots, function(x) if(is(x, "Tensor")) x else Tensor$new(x)))
+                      }
 
                       # function is single input operation, so take last node
                       # need to get this before all the subsequent nodes added
@@ -1376,12 +1458,20 @@ Tensor <- R6Class("Tensor",
                       # output_shapes = list(tail(self$graph)[[1]]$output_shapes)
                       output_shapes = input_shapes
 
+                      input_tensors = if(length(theDots) == 0){
+                        # lapply(self$graph, function(x) unlist(x$input_tensors))
+                        list()
+                      }else{
+                        # c(theDots, lapply(self$graph, function(x) unlist(x$input_tensors)))
+                        theDots
+                      }
+
                       Node$new(self,
                                ops = list(Operation$new(f)),
                                name = name,
                                input_nodes = if(length(self$graph) > 0) tail(self$graph, 1) else list(),
                                output_nodes = list(),
-                               input_tensors = lapply(self$graph, function(x) unlist(x$input_tensors)),
+                               input_tensors = input_tensors,
                                input_shapes = input_shapes,
                                output_shapes = output_shapes)
 
