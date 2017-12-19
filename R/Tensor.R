@@ -195,7 +195,21 @@ Tensor <- R6Class("Tensor",
                                }
                                private$.initializer = FALSE
                              },
+                             "array" = {
+                               self$tensor = initializer
+                               if(missing(shape)){
+                                 private$.shape = private$.get_shape(initializer)
+                               }
+                               private$.initializer = FALSE
+                             },
                              "numeric" = {
+                               self$tensor = initializer
+                               if(missing(shape)){
+                                 private$.shape = private$.get_shape(initializer)
+                               }
+                               private$.initializer = FALSE
+                             },
+                             "integer" = {
                                self$tensor = initializer
                                if(missing(shape)){
                                  private$.shape = private$.get_shape(initializer)
@@ -1250,6 +1264,31 @@ Tensor <- R6Class("Tensor",
                       invisible(self)
                     },
 
+                    sweep = function(MARGIN, STATS, FUN, name = NA){
+                      name = private$.createName(name)
+
+                      args = c(paste0("MARGIN = ", MARGIN),
+                               paste0("FUN = '", FUN, "'"))
+
+                      x_tensor = if(!is(STATS, "Tensor")) Tensor$new(STATS) else STATS
+
+                      # function is single input operation, so take last node
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      # function doesn't change shape
+                      output_shapes = input_shapes
+
+                      Node$new(self,
+                               ops = list(Operation$new("sweep", args = args)),
+                               name = name,
+                               input_nodes = if(length(self$graph) > 0) tail(self$graph, 1) else list(),
+                               output_nodes = list(),
+                               input_tensors = list("STATS" = x_tensor),
+                               input_shapes = input_shapes,
+                               output_shapes = output_shapes)
+
+                      invisible(self)
+                    },
+
                     compute = function(feed_list = NA){
                       if(private$.initializer){
 
@@ -1344,10 +1383,15 @@ Tensor <- R6Class("Tensor",
 
                                   }else{
                                     if(!is.null(args)){
-                                      f = parse(text = paste(func, '(output,', args, ')'))
+                                      f = parse(text = paste(func, '(output,', paste0(args, collapse = ", "), ')'))
                                     }else{
                                       f = parse(text = paste(func, '(output)'))
                                     }
+
+                                    # print('args')
+                                    # print(args)
+                                    # print('expression')
+                                    # print(f)
 
                                     output = eval(f)
 
@@ -1381,9 +1425,16 @@ Tensor <- R6Class("Tensor",
                                   if(!is.null(args)){
                                     # print('args not null')
                                     if(is.na(op$order)){
-                                      f = parse(text = paste(prefix, '(output,', inputs, ", ", args, ')'))
+                                      f = parse(text = paste(prefix, '(output,',
+                                                             inputs, ", ",
+                                                             paste0(args, collapse = ", "),
+                                                             ')'))
                                     }else{
-                                      f = parse(text = paste(prefix, '(', inputs, ", output,", args, ')'))
+                                      f = parse(text = paste(prefix, '(',
+                                                             inputs,
+                                                             ", output,",
+                                                             paste0(args, collapse = ", "),
+                                                             ')'))
                                     }
                                   }else{
 
@@ -1398,6 +1449,8 @@ Tensor <- R6Class("Tensor",
                                     }
                                   }
 
+                                  # print('args')
+                                  # print(args)
                                   # print('expression')
                                   # print(f)
 
@@ -1540,6 +1593,7 @@ Tensor <- R6Class("Tensor",
                                    "integer" = length(value),
                                    "numeric" = length(value),
                                    "matrix" = dim(value),
+                                   "array" = dim(value),
                                    {
                                      if(is(value, "gpuMatrix") | is(value, "vclMatrix")){
                                        dim(value)
