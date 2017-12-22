@@ -30,7 +30,9 @@ setBackend <- function(backend){
          "base" = options(lazytensor.backend = "base"),
          "gpuR" = {
            pkg_check(backend)
-           attachNamespace("gpuR")
+           if(!"gpuR" %in% .packages()){
+             attachNamespace("gpuR")
+           }
            options(lazytensor.backend = "gpuR")
          },
          stop(paste0("Unimplemented backend: ", backend))
