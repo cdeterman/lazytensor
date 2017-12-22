@@ -131,6 +131,10 @@ Tensor <- R6Class("Tensor",
                       private$.shape = value
                     },
 
+                    output_shape = function(){
+                      return(self$graph[[length(self$graph)]]$output_shapes)
+                    },
+
                     nrow = function(value){
                       if(missing(value)) return(private$.shape[1])
                       private$.shape[1] = value
@@ -237,16 +241,17 @@ Tensor <- R6Class("Tensor",
 
                     .dot = function(x, name = NA){
                       private$.has_history = TRUE
+
                       x_tensor = if(!is(x, "Tensor")) Tensor$new(x) else x
 
                       name = private$.createName(name)
 
-                      # trig functions are single input operations, so take last node
+                      # get input shape
                       input_shapes = list(x_tensor$shape)
                       # matrix multiplication may change shape
-                      output_shapes = switch(length(input_shapes),
+                      output_shapes = switch(length(x_tensor$shape),
                                              list(1),
-                                             list(c(self$nrow, input_shapes[2])),
+                                             list(c(self$nrow, x_tensor$shape[2])),
                                              stop("unimplemented for ndim > 2")
                       )
 
@@ -537,7 +542,7 @@ Tensor <- R6Class("Tensor",
                       private$.has_history = TRUE
 
                       # Functions is a single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
 
                       # Function doesn't change shape
                       output_shapes = input_shapes
@@ -567,7 +572,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # Functions is a single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # Function doesn't change shape
                       output_shapes = input_shapes
 
@@ -590,7 +595,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # Functions is a single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # Function doesn't change shape
                       output_shapes = input_shapes
 
@@ -613,7 +618,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # Functions is a single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # Function doesn't change shape
                       output_shapes = input_shapes
 
@@ -636,7 +641,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # Functions is a single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # Function doesn't change shape
                       output_shapes = input_shapes
 
@@ -659,7 +664,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # Functions is a single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # Function doesn't change shape
                       output_shapes = input_shapes
 
@@ -682,7 +687,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # Functions is a single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # Function doesn't change shape
                       output_shapes = input_shapes
 
@@ -704,7 +709,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = input_shapes
 
@@ -727,7 +732,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = input_shapes
 
@@ -750,7 +755,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = input_shapes
 
@@ -772,7 +777,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # trig functions are single input operations, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # cos doesn't change shape
                       output_shapes = input_shapes
 
@@ -796,7 +801,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = input_shapes
 
@@ -818,7 +823,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = input_shapes
 
@@ -841,7 +846,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = input_shapes
 
@@ -864,7 +869,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = input_shapes
 
@@ -887,7 +892,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = input_shapes
 
@@ -912,7 +917,7 @@ Tensor <- R6Class("Tensor",
                       args = paste0("na.rm = ", na.rm)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(1)
                       # function returns scalar
                       output_shapes = list(1)
 
@@ -937,7 +942,7 @@ Tensor <- R6Class("Tensor",
                       args = paste0("na.rm = ", na.rm)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(1)
                       # function returns scalar
                       output_shapes = list(1)
 
@@ -963,7 +968,7 @@ Tensor <- R6Class("Tensor",
                       x_tensors = lapply(dots, function(x) if(!is(x, "Tensor")) Tensor$new(x) else x)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function returns object of the same dimensions
                       output_shapes = input_shapes
 
@@ -989,7 +994,7 @@ Tensor <- R6Class("Tensor",
                       x_tensors = lapply(dots, function(x) if(!is(x, "Tensor")) Tensor$new(x) else x)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function returns object of the same dimensions
                       output_shapes = input_shapes
 
@@ -1015,7 +1020,7 @@ Tensor <- R6Class("Tensor",
                       args = c(paste0("trim = ", trim), paste0("na.rm = ", na.rm))
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(1)
                       # function returns scalar
                       output_shapes = list(1)
 
@@ -1038,7 +1043,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = input_shapes
 
@@ -1064,7 +1069,7 @@ Tensor <- R6Class("Tensor",
                       args = paste0("digits = ", digits)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = input_shapes
 
@@ -1087,7 +1092,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = input_shapes
 
@@ -1110,7 +1115,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = input_shapes
 
@@ -1133,7 +1138,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = input_shapes
 
@@ -1156,7 +1161,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = input_shapes
 
@@ -1179,7 +1184,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(1)
                       # function returns a scalar
                       output_shapes = list(1)
 
@@ -1202,7 +1207,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = list(1, prod(input_shapes[[1]]))
 
@@ -1225,7 +1230,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(1)
                       # function returns a scalar
                       output_shapes = list(1)
 
@@ -1248,7 +1253,7 @@ Tensor <- R6Class("Tensor",
                       name = private$.createName(name)
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = list(1, prod(input_shapes[[1]]))
 
@@ -1273,7 +1278,7 @@ Tensor <- R6Class("Tensor",
                       x_tensor = if(!is(STATS, "Tensor")) Tensor$new(STATS) else STATS
 
                       # function is single input operation, so take last node
-                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list()
+                      input_shapes = if(length(self$graph) > 0) tail(self$graph, 1)[[1]]$output_shapes else list(self$shape)
                       # function doesn't change shape
                       output_shapes = input_shapes
 
@@ -1326,23 +1331,33 @@ Tensor <- R6Class("Tensor",
                             stop(paste0("must provide named element for placeholder: ", self$name))
                           }
                           input_tensor = feed_list[[self$name]]
-                          if(!all(dim(input_tensor) == self$shape)){
-                            stop(paste0("input object for placeholder: ", self$name,
-                                        "doesn't match shape: ", self$shape))
+
+                          if(is.na(self$shape[1])){
+                            if(!all(dim(input_tensor)[-1] == self$shape[-1])){
+                              stop(paste0("input object for placeholder: ", self$name,
+                                          " doesn't match shape: ", paste0(self$shape, collapse=", ")))
+                            }
+                          }else{
+                            if(!all(dim(input_tensor) == self$shape)){
+                              stop(paste0("input object for placeholder: ", self$name,
+                                          " doesn't match shape: ", paste0(self$shape, collapse=", ")))
+                            }
                           }
+
                           output = input_tensor
                         }else{
                           output = self$tensor
                         }
 
                         if(length(self$graph) == 0){
+                          # print('no operations')
                           ## no operations on this tensor
                           # if(length(private$.input_tensors) > 0){
                           #   for(i in seq_along(private$.input_tensors)){
                           #     private$.input_tensors[i]$compute(feed_list)
                           #   }
                           # }
-                          return(self$tensor)
+                          return(output)
                         }else{
                           # operations to be completed
 
@@ -1604,6 +1619,7 @@ Tensor <- R6Class("Tensor",
                       )
                       return(out)
                     },
+
                     .args = NULL,
 
                     .shared_env = new.env(),
@@ -1620,6 +1636,10 @@ Tensor <- R6Class("Tensor",
                         counter = private$.getCounter()
                         private$.shared_env$counter = counter + 1
                         name = tail(paste0(sub("(.*)\\$", "", as.list(sys.call(-1))[[1]]), "_", counter), 1)
+                      }else{
+                        counter = private$.getCounter()
+                        private$.shared_env$counter = counter + 1
+                        name = paste0(name, "_", counter)
                       }
                       return(name)
                     }
