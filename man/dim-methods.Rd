@@ -17,6 +17,11 @@ A length 2 vector of the number of rows and columns respectively.
 \description{
 Retrieve dimension of object
 }
+\note{
+This function returns the output shape of the tensor.  If you wish
+to guarantee the value is the initial shape of the Tensor you should
+access the dimensions directly with \code{x$shape}.
+}
 \author{
 Charles Determan Jr.
 }

@@ -30,3 +30,7 @@ test_that("Matrix Multiplication", {
   expect_equal(res[], C, tolerance=1e-07,
                info="matrix elements not equivalent")
 })
+
+if(getOption("lazytensor.backend") != "base"){
+  setBackend("base")
+}
