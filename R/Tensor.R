@@ -132,7 +132,11 @@ Tensor <- R6Class("Tensor",
                     },
 
                     output_shape = function(){
-                      return(self$graph[[length(self$graph)]]$output_shapes)
+                      if(length(self$graph) > 0){
+                        return(self$graph[[length(self$graph)]]$output_shapes)
+                      }else{
+                        return(self$shape)
+                      }
                     },
 
                     nrow = function(value){
@@ -248,6 +252,10 @@ Tensor <- R6Class("Tensor",
 
                       # get input shape
                       input_shapes = list(x_tensor$shape)
+
+                      # print('matmult input shape')
+                      # print(x_tensor$shape)
+
                       # matrix multiplication may change shape
                       output_shapes = switch(length(x_tensor$shape),
                                              list(1),
